@@ -1,27 +1,51 @@
-import React, {useEffect, useState} from 'react';
-import {TextInput,Text,FlatList, StyleSheet, Image, View, Pressable} from 'react-native';
+import React, {useEffect, useMemo, useState} from 'react';
+import {
+  TextInput,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  View,
+  Pressable,
+} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {API_KEY, URL, Version} from '../apis/constant';
 import PosterView from '../Components/PosterView';
 import {images} from '../theme/images';
+import debouce from 'lodash.debounce';
 
 function SearchScreen(props) {
-  const [Search, setSearch] = useState();
-  const [TrendingMovies, setTrendingMovies] = useState([]);
+  const [search, setSearch] = useState('');
+  const [trendingList, setTrendingList] = useState([]);
+  const [searchList, setSearchList] = useState([]);
 
   useEffect(() => {
     getTrendingList();
   }, []);
 
-  //   https://api.themoviedb.org/3/search/movie?api_key=<<api_key>>&language=en-US&page=1&include_adult=false
-
+  // Trending List API
   function getTrendingList() {
     fetch(`${URL}/${Version}/trending/movie/day?api_key=${API_KEY}`)
       .then(res => res.json())
       .then(response => {
-        console.log('res', response);
         if (response.results.length > 0) {
-          setTrendingMovies(response.results);
+          setTrendingList(response.results);
+        }
+      })
+      .catch(err => {
+        console.log('err', err);
+      });
+  }
+
+  // search Movie API
+  function searchMovie(searchString) {
+    fetch(
+      `${URL}${Version}/search/movie?api_key=${API_KEY}&language=en-US&query=${searchString}`,
+    )
+      .then(res => res.json())
+      .then(response => {
+        if (response.results.length > 0) {
+          setSearchList(response.results);
         }
       })
       .catch(err => {
@@ -41,13 +65,39 @@ function SearchScreen(props) {
     );
   }
 
+  const handleChange = text => {
+    setSearch(text);
+    if (search !== '') {
+      searchMovie(text); // call search API
+      const listToDisplay = searchList.filter(movie => {
+        const itemData = movie.title
+          ? movie.title.toLowerCase()
+          : ''.toLowerCase();
+        const searchString = text.toLowerCase();
+        return itemData.indexOf(searchString) > -1;
+      });
+      setSearchList(listToDisplay);
+    } else {
+      setTrendingList(trendingList);
+    }
+  };
+
+  const debouncedResults = useMemo(() => {
+    return debouce(handleChange, 300);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      debouncedResults.cancel();
+    };
+  });
+
   function renderSearch() {
     return (
       <TextInput
-        value={Search}
-        onChangeText={val => {
-          setSearch(val);
-        }}
+        value={search}
+        onChangeText={handleChange}
         style={styles.textBox}
         placeholder={'Search here...'}
         placeholderTextColor={'grey'}
@@ -56,14 +106,27 @@ function SearchScreen(props) {
   }
 
   function renderTrending() {
-    return  <FlatList
-    data={TrendingMovies}
-    numColumns={2}
-    
-    renderItem={({item}) => {
-      return <PosterView item={item} />
-    }}
-  />
+    return (
+      <FlatList
+        data={trendingList}
+        numColumns={2}
+        renderItem={({item}) => {
+          return <PosterView item={item} />;
+        }}
+      />
+    );
+  }
+
+  function renderSearchList() {
+    return (
+      <FlatList
+        data={searchList}
+        numColumns={2}
+        renderItem={({item}) => {
+          return <PosterView item={item} />;
+        }}
+      />
+    );
   }
 
   return (
@@ -72,8 +135,10 @@ function SearchScreen(props) {
         {renderHeader()}
         {renderSearch()}
       </View>
-      <Text style={styles.headLabel}>Trending Movies</Text>
-      {renderTrending()}
+      <Text style={styles.headLabel}>
+        {search === '' ? 'Trending Movies' : 'Search Results'}
+      </Text>
+      {search === '' ? renderTrending() : renderSearchList()}
     </SafeAreaView>
   );
 }
@@ -100,6 +165,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     padding: 10,
-    color:'nevyblue'
+    color: 'nevyblue',
   },
 });

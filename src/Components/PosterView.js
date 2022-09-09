@@ -1,14 +1,21 @@
 import React from 'react';
-import {View, Image, StyleSheet, Text} from 'react-native';
+import {View, Image, StyleSheet, Text, TouchableOpacity} from 'react-native';
 import {Image_Path} from '../apis/constant';
+import {theme} from '../theme';
 import {images} from '../theme/images';
 
 function PosterView(props) {
-  const {item} = props;
+  const {item, handleOnPress} = props;
   return (
-    <View style={{margin:10}}>
+    <TouchableOpacity onPress={handleOnPress}>
       <Image
-        source={{url: `${Image_Path}/${item?.poster_path}`}}
+        source={{
+          uri: `${Image_Path}/${item?.poster_path}`,
+          headers: {
+            Accept: '*/*',
+          },
+        }}
+        resizeMode="cover"
         style={styles.imageStyle}
       />
       <Text style={styles.nameLabel}>{item?.title}</Text>
@@ -16,7 +23,7 @@ function PosterView(props) {
         <Image source={images.Star} style={styles.iconCenter} />
         <Text style={styles.rating}>{item?.vote_average} / 10 IMDb</Text>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 }
 
@@ -26,15 +33,15 @@ const styles = StyleSheet.create({
   imageStyle: {
     height: 200,
     width: 150,
-    marginRight: 30,
     borderRadius: 10,
-    marginLeft: 10,
+    marginLeft: 15,
   },
   nameLabel: {
-    fontSize: 18,
+    fontSize: 14,
     width: 150,
     marginLeft: 10,
-    padding:10
+    paddingVertical: 8,
+    color: theme.colors.black,
   },
   row: {
     flexDirection: 'row',
@@ -43,7 +50,8 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   rating: {
-    color: 'grey',
-    margin: 10,
+    color: theme.colors.grey,
+    fontSize: 12,
+    paddingLeft: 3,
   },
 });

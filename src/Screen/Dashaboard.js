@@ -1,20 +1,22 @@
+import {useNavigation} from '@react-navigation/native';
 import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   FlatList,
   SafeAreaView,
+  ScrollView,
 } from 'react-native';
-import {API_KEY, Image_Path, URL, Version} from '../apis/constant';
+import {API_KEY, URL, Version} from '../apis/constant';
 import Header from '../Components/Header';
 import PosterView from '../Components/PosterView';
-import {images} from '../theme/images';
+import VerticalPosterView from '../Components/VerticalPosterView';
+import { theme } from '../theme';
 
 function Dashboard(props) {
   const [TrendingMovies, setTrendingMovies] = useState([]);
-
+  const navigation = useNavigation();
   useEffect(() => {
     getMovies();
   }, []);
@@ -23,7 +25,6 @@ function Dashboard(props) {
     fetch(`${URL}/${Version}/trending/movie/day?api_key=${API_KEY}`)
       .then(res => res.json())
       .then(response => {
-        console.log('res', response);
         if (response.results.length > 0) {
           setTrendingMovies(response.results);
         }
@@ -33,6 +34,10 @@ function Dashboard(props) {
       });
   }
 
+  const onPosterPress = details => {
+    console.log('details',details)
+    navigation.navigate('MovieDetailScreen', {details});
+  };
   function renderTrendingMoives() {
     return (
       <View>
@@ -42,36 +47,45 @@ function Dashboard(props) {
           horizontal
           showsHorizontalScrollIndicator={false}
           renderItem={({item}) => {
-            return <PosterView item={item} />
+            return (
+              <PosterView
+                item={item}
+                handleOnPress={() => onPosterPress(item)}
+              />
+            );
           }}
         />
       </View>
     );
   }
 
-  function renderPopularMovies(){
+  function renderPopularMovies() {
     return (
       <View>
         <Text style={styles.headLabel}>Popular</Text>
         <FlatList
           data={TrendingMovies}
-          horizontal
-          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}
           renderItem={({item}) => {
-            return <PosterView item={item} />
+            return (
+              <VerticalPosterView
+                item={item}
+                handleOnPress={() => onPosterPress(item)}
+              />
+            );
           }}
         />
       </View>
     );
   }
 
-  
-
   return (
-    <SafeAreaView style={{flex: 1}}>
-     <Header props={props}/>
+    <SafeAreaView>
+      {/* <ScrollView nestedScrollEnabled> */}
+      <Header props={props} />
       {renderTrendingMoives()}
       {renderPopularMovies()}
+      {/* </ScrollView> */}
     </SafeAreaView>
   );
 }
@@ -83,16 +97,16 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     padding: 10,
-    color:'nevyblue'
+    color: theme.colors.darkBlue,
   },
-  row : {
+  row: {
     flexDirection: 'row',
   },
   rating: {
     color: 'grey',
     margin: 10,
   },
-  iconCenter : {
-    alignSelf: 'center'
-  }
+  iconCenter: {
+    alignSelf: 'center',
+  },
 });

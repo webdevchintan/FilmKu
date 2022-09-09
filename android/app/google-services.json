@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "312656306238",
+    "project_id": "fir-app-a3922",
+    "storage_bucket": "fir-app-a3922.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:312656306238:android:5ff2d9c4d1be7156b0b16f",
+        "android_client_info": {
+          "package_name": "com.moviedemo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "312656306238-4b0hqon8g5d78jlngsn0aqqkur1fe20d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJlCvHekDFnO32YQnfdTv-UUinw2UMGUg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "312656306238-4b0hqon8g5d78jlngsn0aqqkur1fe20d.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "312656306238-qk94htirqfkqlnin5ao887hunaitukce.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.MovieDemo"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

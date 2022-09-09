@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Image, StyleSheet, Text, Pressable} from 'react-native';
+import { theme } from '../theme';
 import {images} from '../theme/images';
 
 function Header(props) {
@@ -13,7 +14,6 @@ function Header(props) {
             props.props.navigation.navigate('SearchScreen');
           }}
           style={styles.iconCenter}>
-
           <Image source={images.Search} style={styles.SearchIcon} />
         </Pressable>
         <Image source={images.Notify} style={styles.iconCenter} />
@@ -37,6 +37,7 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     padding: 10,
+    color: theme.colors.black,
   },
   SearchIcon: {
     alignSelf: 'center',
