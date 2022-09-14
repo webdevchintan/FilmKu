@@ -109,6 +109,9 @@ const styles = StyleSheet.create({
   headerView: {
     position: 'absolute',
     top: 0,
+    zIndex: 999,
+    width: 50,
+    height: 50,
   },
   movieTitle: {
     fontSize: 20,

@@ -8,7 +8,6 @@ import {
   Pressable,
   ActivityIndicator,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import PosterView from '../Components/PosterView';
 import {images} from '../theme/images';
 import debouce from 'lodash.debounce';
@@ -126,7 +125,7 @@ function SearchScreen({navigation}) {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       {renderHeader()}
       {renderSearch()}
       <HeadingLabel
@@ -135,7 +134,7 @@ function SearchScreen({navigation}) {
       />
       <View style={styles.listContainer}>
         {search === '' ? renderTrending() : renderSearchList()}
-        {pageNumber > 1 && (
+        {pageNumber > 1 && searchList?.length > 10 && (
           <Button
             mode="contained"
             icon={({size, color}) =>
@@ -148,7 +147,7 @@ function SearchScreen({navigation}) {
           </Button>
         )}
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -158,7 +157,9 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: theme.colors.white,
     height: '100%',
-    paddingBottom: '45%',
+    paddingBottom: '40%',
+    paddingHorizontal: 10,
+    paddingTop: 20,
   },
   searchBox: {
     backgroundColor: theme.colors.white,
@@ -187,6 +188,7 @@ const styles = StyleSheet.create({
   },
   buttonStyle: {
     width: 200,
+    marginBottom: 30,
   },
   labelStyle: {
     paddingLeft: 10,
