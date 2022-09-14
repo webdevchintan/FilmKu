@@ -12,5 +12,8 @@ export const theme = {
     darkBlue: '#110E47',
     lightGray: '#AAA9B1',
     black: '#000000',
+    lavender: '#DBE3FF',
+    portage: '#88A4E8',
+    dustGray: '#9C9C9C',
   },
 };

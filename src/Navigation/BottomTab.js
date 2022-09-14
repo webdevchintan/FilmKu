@@ -5,7 +5,8 @@ import * as React from 'react';
 import {Alert, Image, Text} from 'react-native';
 import {images} from '../theme/images';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import auth from '@react-native-firebase/auth';
+import {handleLogout} from '../services/firebaseService';
+import {theme} from '../theme';
 
 const Tab = createMaterialBottomTabNavigator();
 
@@ -18,11 +19,7 @@ const logoutConfirm = () =>
     },
     {
       text: 'OK',
-      onPress: () => {
-        auth()
-          .signOut()
-          .then(() => console.log('User signed out!'));
-      },
+      onPress: () => handleLogout(),
     },
     ,
   ]);
@@ -37,7 +34,7 @@ function BottomTab() {
         tabBarShowLabel: false,
         showLabel: false,
       }}
-      barStyle={{backgroundColor: '#ffffff'}}>
+      barStyle={{backgroundColor: theme.colors.white}}>
       <Tab.Screen
         name="Dashboard"
         component={Dashboard}
@@ -46,7 +43,9 @@ function BottomTab() {
           tabBarIcon: ({focused}) => (
             <Image
               source={images.cinema}
-              style={{tintColor: focused ? '' : 'grey'}}
+              style={{
+                tintColor: focused ? theme.colors.darkBlue : theme.colors.grey,
+              }}
             />
           ),
         }}
@@ -59,7 +58,9 @@ function BottomTab() {
           tabBarIcon: ({focused}) => (
             <Image
               source={images.tickit}
-              style={{tintColor: focused ? 'blue' : 'grey'}}
+              style={{
+                tintColor: focused ? theme.colors.darkBlue : theme.colors.grey,
+              }}
             />
           ),
         }}
@@ -72,7 +73,9 @@ function BottomTab() {
           tabBarIcon: ({focused}) => (
             <Image
               source={images.bookmark}
-              style={{tintColor: focused ? 'blue' : 'grey'}}
+              style={{
+                tintColor: focused ? theme.colors.darkBlue : theme.colors.grey,
+              }}
             />
           ),
         }}
@@ -83,7 +86,11 @@ function BottomTab() {
         options={{
           tabBarLabel: '',
           tabBarIcon: ({focused}) => (
-            <Icon name="logout" size={24} color={focused ? 'blue' : 'grey'} />
+            <Icon
+              name="logout"
+              size={24}
+              color={focused ? theme.colors.darkBlue : theme.colors.grey}
+            />
           ),
         }}
         listeners={{

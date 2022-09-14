@@ -7,7 +7,7 @@ import {images} from '../theme/images';
 function PosterView(props) {
   const {item, handleOnPress} = props;
   return (
-    <TouchableOpacity onPress={handleOnPress}>
+    <TouchableOpacity onPress={handleOnPress} style={styles.container}>
       <Image
         source={{
           uri: `${Image_Path}/${item?.poster_path}`,
@@ -19,7 +19,7 @@ function PosterView(props) {
         style={styles.imageStyle}
       />
       <Text style={styles.nameLabel}>{item?.title}</Text>
-      <View style={[styles.row, {marginLeft: 10}]}>
+      <View style={styles.row}>
         <Image source={images.Star} style={styles.iconCenter} />
         <Text style={styles.rating}>{item?.vote_average} / 10 IMDb</Text>
       </View>
@@ -30,17 +30,19 @@ function PosterView(props) {
 export default PosterView;
 
 const styles = StyleSheet.create({
+  container: {
+    marginHorizontal: 16,
+    marginVertical: 8,
+  },
   imageStyle: {
     height: 200,
     width: 150,
     borderRadius: 10,
-    marginLeft: 15,
   },
   nameLabel: {
     fontSize: 14,
     width: 150,
-    marginLeft: 10,
-    paddingVertical: 8,
+    marginVertical: 5,
     color: theme.colors.black,
   },
   row: {

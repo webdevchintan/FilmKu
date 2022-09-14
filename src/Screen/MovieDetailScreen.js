@@ -1,12 +1,14 @@
 import React from 'react';
 import {Text, StyleSheet, Image, View, Pressable} from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
 import {Image_Path} from '../apis/constant';
 import {theme} from '../theme';
 import {images} from '../theme/images';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {ScrollView} from 'react-native-gesture-handler';
 import Person from '../Components/Person';
+import {GenreList} from '../Components/GenreList';
+import {PlayInfo} from '../Components/PlayInfo';
+import {HeadingLabel} from '../Components/HeadingLabel';
 
 function MovieDetailScreen({navigation, route}) {
   const {params} = route;
@@ -33,91 +35,62 @@ function MovieDetailScreen({navigation, route}) {
     );
   };
   return (
-    <SafeAreaView>
-      <ScrollView
-        contentContainerStyle={{
-          backgroundColor: theme.colors.white,
-          paddingBottom: 40,
-        }}>
-        <View>
-          <Image
-            source={{
-              uri: `${Image_Path}/${poster_path}`,
-            }}
-            style={styles.imageContainer}
-            resizeMode="cover"
-          />
-          <HeaderBack />
-          <View style={styles.dotIcon}>
-            <Icon name="menu" size={20} color={theme.colors.white} />
-          </View>
-          {playTrailer()}
+    <ScrollView contentContainerStyle={styles.scrollContainer}>
+      <View>
+        <Image
+          source={{
+            uri: `${Image_Path}/${poster_path}`,
+          }}
+          style={styles.imageContainer}
+          resizeMode="cover"
+        />
+        <HeaderBack />
+        <View style={styles.dotIcon}>
+          <Icon name="menu" size={20} color={theme.colors.white} />
         </View>
-        <View style={styles.infoContainer}>
-          <View style={styles.headerInfo}>
-            <Text style={styles.movieTitle}>{title}</Text>
-            <Icon name="bookmark-outline" size={24} color="#D8D8D8" />
+        {playTrailer()}
+      </View>
+      <View style={styles.infoContainer}>
+        <View style={styles.headerInfo}>
+          <Text style={styles.movieTitle}>{title}</Text>
+          <Icon name="bookmark-outline" size={24} color="#D8D8D8" />
+        </View>
+        <View style={styles.ratingContainer}>
+          <Image source={images.Star} style={styles.iconCenter} />
+          <Text style={styles.ratingText}>{vote_average} / 10 IMDb</Text>
+        </View>
+        <GenreList />
+        <PlayInfo />
+        <View style={styles.descriptionContainer}>
+          <HeadingLabel label="Description" />
+          <Text style={styles.movieDescription}>{overview}</Text>
+        </View>
+        <View style={styles.castContainer}>
+          <View style={styles.castHeading}>
+            <HeadingLabel label="Cast" />
+            <View style={styles.seeMoreBlockStyle}>
+              <Text style={styles.seeMoreText}>See more</Text>
+            </View>
           </View>
-          <View style={styles.ratingContainer}>
-            <Image source={images.Star} style={styles.iconCenter} />
-            <Text style={styles.ratingText}>{vote_average} / 10 IMDb</Text>
-          </View>
-          <View style={styles.genreContainer}>
-            <View style={styles.genreBlockStyle}>
-              <Text style={styles.genreText}>HORROR</Text>
-            </View>
-            <View style={[styles.genreBlockStyle]}>
-              <Text style={styles.genreText}>MYSTERY</Text>
-            </View>
-            <View style={styles.genreBlockStyle}>
-              <Text style={styles.genreText}>THRILLER</Text>
-            </View>
-            <View style={styles.genreBlockStyle}>
-              <Text style={styles.genreText}>THRILLER</Text>
-            </View>
-          </View>
-          <View style={styles.playInfoContainer}>
-            <View>
-              <Text style={styles.playInfoTitle}>Length</Text>
-              <Text style={styles.playInfoDesc}>2h 28min</Text>
-            </View>
-            <View>
-              <Text style={styles.playInfoTitle}>Language</Text>
-              <Text style={styles.playInfoDesc}>English</Text>
-            </View>
-            <View>
-              <Text style={styles.playInfoTitle}>Rating</Text>
-              <Text style={styles.playInfoDesc}>PG-13</Text>
-            </View>
-            <View />
-          </View>
-          <View style={styles.descriptionContainer}>
-            <Text style={styles.headingText}>Description</Text>
-            <Text style={styles.movieDescription}>{overview}</Text>
-          </View>
-          <View style={styles.castContainer}>
-            <View style={styles.castHeading}>
-              <Text style={styles.headingText}>Cast</Text>
-              <View style={styles.seeMoreBlockStyle}>
-                <Text style={styles.seeMoreText}>See more</Text>
-              </View>
-            </View>
-            <View style={styles.castList}>
-              <Person id="1" name="Tom Holland" image={images.user1} />
-              <Person id="2" name="Zendaya" image={images.user2} />
-              <Person id="3" name="Benedict Cumberbatch" image={images.user3} />
-              <Person id="4" name="Jacon Batalon" image={images.user4} />
-            </View>
+          <View style={styles.castList}>
+            <Person id="1" name="Tom Holland" image={images.user1} />
+            <Person id="2" name="Zendaya" image={images.user2} />
+            <Person id="3" name="Benedict Cumberbatch" image={images.user3} />
+            <Person id="4" name="Jacon Batalon" image={images.user4} />
           </View>
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </ScrollView>
   );
 }
 
 export default MovieDetailScreen;
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    backgroundColor: theme.colors.white,
+    paddingBottom: 40,
+  },
   backButton: {
     position: 'absolute',
     top: 20,
@@ -125,11 +98,8 @@ const styles = StyleSheet.create({
     tintColor: theme.colors.white,
   },
   imageContainer: {
-    // backgroundColor: theme.colors.black,
     width: '100%',
     height: 300,
-    // borderTopLeftRadius:20,
-    // borderTopRightRadius:20
   },
   dotIcon: {
     position: 'absolute',
@@ -175,42 +145,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: theme.colors.black,
   },
-  genreContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    width: 300,
-  },
-  genreBlockStyle: {
-    backgroundColor: '#dce3fe',
-    borderRadius: 18,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 2,
-    marginVertical: 2,
-  },
-  genreText: {
-    color: '#707fa3',
-    fontSize: 8,
-  },
-  playInfoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-  },
-  playInfoTitle: {
-    fontWeight: '400',
-    fontSize: 12,
-    color: '#9C9C9C',
-  },
-  playInfoDesc: {
-    fontWeight: '600',
-    fontSize: 12,
-    color: theme.colors.black,
-    lineHeight: 16,
-    marginTop: 4,
-  },
+
   descriptionContainer: {
     marginVertical: 24,
   },

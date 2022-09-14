@@ -1,16 +1,19 @@
-import React, {memo, useState, useEffect} from 'react';
-import {StyleSheet, Text, KeyboardAvoidingView, Image} from 'react-native';
+import React, {memo, useState} from 'react';
+import {StyleSheet, Text, KeyboardAvoidingView} from 'react-native';
 import Button from '../Components/Button';
 import TextInput from '../Components/TextInput';
+import {handleLogin} from '../services/firebaseService';
 import {theme} from '../theme';
 import {emailValidator, passwordValidator} from '../theme/utils';
-import auth from '@react-native-firebase/auth';
+import {Snackbar} from 'react-native-paper';
 
 const LoginScreen = ({navigation}) => {
   const [email, setEmail] = useState({value: '', error: ''});
   const [password, setPassword] = useState({value: '', error: ''});
+  const [errorStatus, setErrorStatus] = useState(null);
+  const [visible, setVisible] = useState(false);
 
-  const _onLoginPressed = () => {
+  const _onLoginPressed = async () => {
     const emailError = emailValidator(email.value);
     const passwordError = passwordValidator(password.value);
 
@@ -19,35 +22,26 @@ const LoginScreen = ({navigation}) => {
       setPassword({...password, error: passwordError});
       return;
     }
-    auth()
-      .createUserWithEmailAndPassword(email?.value, password?.value)
-      .then(() => {
-        console.log('User account created & signed in!');
-        // navigation.navigate('BottomTab');
-      })
-      .catch(error => {
-        if (error.code === 'auth/email-already-in-use') {
-          console.log('That email address is already in use!');
-        }
-
-        if (error.code === 'auth/invalid-email') {
-          console.log('That email address is invalid!');
-        }
-
-        console.error(error);
-      });
+    const response = await handleLogin(email?.value, password?.value);
+    setErrorStatus(response);
+    setVisible(!errorStatus?.success);
   };
-  const Logo = () => (
-    <Image
-      source={{
-        uri: 'https://reactnative.dev/img/tiny_logo.png',
-      }}
-      style={styles.logo}
-    />
-  );
   return (
     <KeyboardAvoidingView style={styles.container} behavior="padding">
-      {/* <Logo /> */}
+      {errorStatus?.error && (
+        <Snackbar
+          visible={visible}
+          duration={3000}
+          onDismiss={() => setVisible(false)}
+          action={{
+            label: 'Hide',
+            onPress: () => {
+              // Do something
+            },
+          }}>
+          {errorStatus?.error}
+        </Snackbar>
+      )}
       <Text style={styles.header}>Login</Text>
       <TextInput
         label="Email"
@@ -90,26 +84,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     width: '100%',
-    maxWidth: 340,
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  row: {
-    flexDirection: 'row',
-    marginTop: 4,
-  },
-  label: {
-    color: theme.colors.secondary,
-  },
-  link: {
-    fontWeight: 'bold',
-    color: theme.colors.primary,
-  },
-  logo: {
-    width: 128,
-    height: 128,
-    marginBottom: 12,
+    paddingHorizontal: 20,
+    backgroundColor: theme.colors.white,
   },
 });
 

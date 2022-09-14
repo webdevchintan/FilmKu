@@ -1,64 +1,53 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {
   TextInput,
-  Text,
   FlatList,
   StyleSheet,
   Image,
   View,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {API_KEY, URL, Version} from '../apis/constant';
 import PosterView from '../Components/PosterView';
 import {images} from '../theme/images';
 import debouce from 'lodash.debounce';
+import {theme} from '../theme';
+import {getSearchMovieslist} from '../services';
+import {useSelector} from 'react-redux';
+import Button from '../Components/Button';
+import {HeadingLabel} from '../Components/HeadingLabel';
 
-function SearchScreen(props) {
+function SearchScreen({navigation}) {
+  const {trendingList, searchList} = useSelector(state => state.movie);
   const [search, setSearch] = useState('');
-  const [trendingList, setTrendingList] = useState([]);
-  const [searchList, setSearchList] = useState([]);
-
-  useEffect(() => {
-    getTrendingList();
-  }, []);
-
-  // Trending List API
-  function getTrendingList() {
-    fetch(`${URL}/${Version}/trending/movie/day?api_key=${API_KEY}`)
-      .then(res => res.json())
-      .then(response => {
-        if (response.results.length > 0) {
-          setTrendingList(response.results);
-        }
-      })
-      .catch(err => {
-        console.log('err', err);
-      });
-  }
+  const [pageNumber, setPageNumber] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   // search Movie API
-  function searchMovie(searchString) {
-    fetch(
-      `${URL}${Version}/search/movie?api_key=${API_KEY}&language=en-US&query=${searchString}`,
-    )
-      .then(res => res.json())
-      .then(response => {
-        if (response.results.length > 0) {
-          setSearchList(response.results);
-        }
-      })
-      .catch(err => {
-        console.log('err', err);
-      });
+  async function searchMovie(searchString) {
+    setLoading(true);
+    try {
+      getSearchMovieslist(searchString, pageNumber);
+    } catch (error) {}
+    setLoading(false);
   }
+  const onPressLoadMore = () => {
+    setLoading(true);
+    try {
+      getSearchMovieslist(search, pageNumber + 1);
+    } catch (error) {}
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
+  };
 
   function renderHeader() {
     return (
       <Pressable
         style={styles.headerView}
         onPress={() => {
-          props.navigation.pop();
+          navigation.pop();
         }}>
         <Image source={images.back} />
       </Pressable>
@@ -68,17 +57,11 @@ function SearchScreen(props) {
   const handleChange = text => {
     setSearch(text);
     if (search !== '') {
+      setPageNumber(1);
       searchMovie(text); // call search API
-      const listToDisplay = searchList.filter(movie => {
-        const itemData = movie.title
-          ? movie.title.toLowerCase()
-          : ''.toLowerCase();
-        const searchString = text.toLowerCase();
-        return itemData.indexOf(searchString) > -1;
-      });
-      setSearchList(listToDisplay);
     } else {
-      setTrendingList(trendingList);
+      setPageNumber(1);
+      searchMovie(text);
     }
   };
 
@@ -98,7 +81,7 @@ function SearchScreen(props) {
       <TextInput
         value={search}
         onChangeText={handleChange}
-        style={styles.textBox}
+        style={styles.searchBox}
         placeholder={'Search here...'}
         placeholderTextColor={'grey'}
       />
@@ -111,7 +94,9 @@ function SearchScreen(props) {
         data={trendingList}
         numColumns={2}
         renderItem={({item}) => {
-          return <PosterView item={item} />;
+          return (
+            <PosterView item={item} handleOnPress={() => onPosterPress(item)} />
+          );
         }}
       />
     );
@@ -123,22 +108,46 @@ function SearchScreen(props) {
         data={searchList}
         numColumns={2}
         renderItem={({item}) => {
-          return <PosterView item={item} />;
+          return (
+            <PosterView item={item} handleOnPress={() => onPosterPress(item)} />
+          );
         }}
+        onEndReached={() => {
+          if (search !== '') {
+            setPageNumber(prev => prev + 1);
+          }
+        }}
+        onEndReachedThreshold={0.5}
       />
     );
   }
+  const onPosterPress = details => {
+    navigation.navigate('MovieDetailScreen', {details});
+  };
 
   return (
-    <SafeAreaView>
-      <View style={styles.mainView}>
-        {renderHeader()}
-        {renderSearch()}
+    <SafeAreaView style={styles.container}>
+      {renderHeader()}
+      {renderSearch()}
+      <HeadingLabel
+        label={search === '' ? 'Trending Movies' : 'Search Results'}
+        style={styles.labelStyle}
+      />
+      <View style={styles.listContainer}>
+        {search === '' ? renderTrending() : renderSearchList()}
+        {pageNumber > 1 && (
+          <Button
+            mode="contained"
+            icon={({size, color}) =>
+              loading ? <ActivityIndicator size={size} color={color} /> : null
+            }
+            disabled={loading}
+            onPress={onPressLoadMore}
+            style={styles.buttonStyle}>
+            Load More
+          </Button>
+        )}
       </View>
-      <Text style={styles.headLabel}>
-        {search === '' ? 'Trending Movies' : 'Search Results'}
-      </Text>
-      {search === '' ? renderTrending() : renderSearchList()}
     </SafeAreaView>
   );
 }
@@ -146,25 +155,39 @@ function SearchScreen(props) {
 export default SearchScreen;
 
 const styles = StyleSheet.create({
-  textBox: {
-    backgroundColor: 'white',
-    borderRadius: 5,
-    padding: 20,
-    margin: 10,
-    fontWeight: 'bold',
-    fontSize: 20,
+  container: {
+    backgroundColor: theme.colors.white,
+    height: '100%',
+    paddingBottom: '45%',
   },
-  mainView: {
-    backgroundColor: 'black',
+  searchBox: {
+    backgroundColor: theme.colors.white,
+    borderRadius: 10,
+    padding: 15,
+    marginHorizontal: 10,
+    marginVertical: 10,
+    fontWeight: 'bold',
+    fontSize: 14,
+    borderWidth: 1,
+    borderColor: theme.colors.black,
   },
   headerView: {
-    padding: 20,
-    alignSelf: 'flex-start',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.darkBlue,
+    borderRadius: 20,
+    height: 40,
+    width: 40,
   },
-  headLabel: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    padding: 10,
-    color: 'nevyblue',
+  listContainer: {
+    justifyContent: 'center',
+    paddingBottom: 20,
+    alignItems: 'center',
+  },
+  buttonStyle: {
+    width: 200,
+  },
+  labelStyle: {
+    paddingLeft: 10,
   },
 });
