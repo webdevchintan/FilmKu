@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     borderWidth: 1,
     borderColor: theme.colors.black,
+    color: theme.colors.black,
   },
   headerView: {
     alignItems: 'center',
